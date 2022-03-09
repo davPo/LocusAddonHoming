@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <EditText
+        android:id="@+id/editText_bearing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="number"
+        android:singleLine="true"
+        android:text="Bearing"
+        tools:layout_editor_absoluteX="40dp"
+        tools:layout_editor_absoluteY="233dp" />
+
+    <SeekBar
+        android:id="@+id/seekBar_len"
+        android:layout_width="207dp"
+        android:layout_height="62dp"
+        android:max="2"
+        android:progress="1"
+        tools:layout_editor_absoluteX="40dp"
+        tools:layout_editor_absoluteY="301dp" />
+
+    <Button
+        android:id="@+id/button_send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send"
+        tools:layout_editor_absoluteX="279dp"
+        tools:layout_editor_absoluteY="230dp" />
+</androidx.constraintlayout.widget.ConstraintLayout>
