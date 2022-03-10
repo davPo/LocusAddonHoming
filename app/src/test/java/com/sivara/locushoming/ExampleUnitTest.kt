@@ -1,4 +1,4 @@
-package com.sivara.locusbearing
+package com.sivara.locushoming
 
 import org.junit.Test
 

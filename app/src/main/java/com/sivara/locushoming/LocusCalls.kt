@@ -1,4 +1,4 @@
-package com.sivara.locusbearing
+package com.sivara.locushoming
 
 import android.app.Activity
 import locus.api.android.ActionBasics

@@ -9,14 +9,14 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/Theme.LocusBearing.AppBarOverlay">
+        android:theme="@style/Theme.LocusHoming.AppBarOverlay">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/Theme.LocusBearing.PopupOverlay" />
+            app:popupTheme="@style/Theme.LocusHoming.PopupOverlay" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -29,14 +29,26 @@
             android:layout_width="match_parent"
             android:layout_height="153dp" />
 
-        <EditText
-            android:id="@+id/editText_bearing"
-            android:layout_width="167dp"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Bearing 1..360"
-            android:inputType="number"
-            android:singleLine="true" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="61dp"
+            android:orientation="horizontal">
+
+            <Switch
+                android:id="@+id/switch_connect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BLE Compas" />
+
+            <EditText
+                android:id="@+id/editText_bearing"
+                android:layout_width="167dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Bearing 1..360"
+                android:inputType="number"
+                android:singleLine="true" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"

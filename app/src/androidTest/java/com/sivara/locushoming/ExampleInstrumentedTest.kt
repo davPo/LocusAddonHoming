@@ -1,4 +1,4 @@
-package com.sivara.locusbearing
+package com.sivara.locushoming
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

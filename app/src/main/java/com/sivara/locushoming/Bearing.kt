@@ -1,4 +1,4 @@
-package com.sivara.locusbearing
+package com.sivara.locushoming
 
 import com.bahadirarslan.jeodezi.Coordinate
 import com.bahadirarslan.jeodezi.GreatCircle
