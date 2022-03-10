@@ -18,8 +18,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.navigation.ui.AppBarConfiguration
 import com.google.android.material.snackbar.Snackbar
-import com.sivara.locushoming.LocusCalls.pickLocation
 import com.sivara.locushoming.databinding.ActivityMainBinding
+import com.sivara.locushoming.LocusCalls.pickLocation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -28,6 +28,7 @@ import locus.api.android.features.sendToApp.SendMode
 import locus.api.android.features.sendToApp.SendToAppHelper
 import locus.api.android.features.sendToApp.tracks.SendTrack
 import locus.api.android.utils.IntentHelper
+import locus.api.android.utils.LocusConst
 import locus.api.android.utils.exceptions.RequiredVersionMissingException
 import locus.api.objects.extra.GeoDataExtra
 import locus.api.objects.extra.Location
@@ -44,10 +45,11 @@ class MainActivity : AppCompatActivity() {
     // locus maps
     var bearingIn: Double = 0.0
     var vectorlengthIn : Double = 1.0
+    var textIn : String = ""
     var currentlocation : Location = Location(0.0, 0.0)
     var projected : Location = Location(0.0, 0.0)
 
-    val vector_km: DoubleArray = doubleArrayOf(1.0, 10.0, 50.0)
+    val vector_km: DoubleArray = doubleArrayOf(2.0, 10.0, 20.0, 50.0)
     val red_flag_icon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABmJLR0QA/wD/AP+gvaeTAAAA6UlEQVRoge3YsQ3CQAyF4XeIcbIB0JElUmcP2Is0EWGMzGIqS4gK7my/K/z1SO8XSS4KkFL6yTjNMk6zsHd8O7AHhNkHyD5A5IJNzriy96iaf+CEgkcvIS2XUBchFvcANcTyJqaEeDyFQkM8H6MhIRHngGtI5EHmEsI4iU1DmK8SJiE9vAs1hfQQoKpCegqocmQP+PCC4F42LP/8qIeAquGKGdA0XDECTIaryADT4SoiwGW48gxwHa48AkKGK8uA0OHKIoAyXLUEUIermoAVwK08sVqPcZXfRp1kAFsGsGUAWwawZUBKiesN6tVxvhMjpPkAAAAASUVORK5CYII="
     val green_flag_icon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABmJLR0QA/wD/AP+gvaeTAAABGklEQVRoge2WPw4BURCH5+06gnAAvUKrESGcQUHjGkLiGgpOgSzFJvYYzjKqaVT7/sz7kcxXb/F9efveDJFhGK2Yr7Y8X20Z7fFNgRaIxbX9cLgbMRFRd9BrCseHx+b+0NNqj/cJOOIxM1XT8/I1uyxmGlI+BP9CvxISfQfQIckuMSok+SuUO0TtGc0Voj4HtEOyDTKtkOyTOHUIbJVIFQLfhWJD4AFCaMjPBITSQQsITK4pHB+em5vXlgsPCBUXYAGx4kL2gFTiQraA1OKCeoCWuKAWoC0uJA/IJS4kC8gtLkQHoMSF4AC0uOAdwMx1WZb7an2tNYR8aR3Qf4+IiKg6niZqNgH8/TZqAWgsAI0FoLEANBZgGAaWDyburZhYAyl2AAAAAElFTkSuQmCC"
     val empty_flag_icon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABmJLR0QA/wD/AP+gvaeTAAABmElEQVRoge3YMWsUQRiH8V+CCAYiWBiLpLKyFKzt7FLnK6QwhaWRNCnTWtqmsLjaLl8hhaBFKlNZmMJABEU0JsUy8CKB283d7s4c88AVd8wO/4e5eXfeoR2bWG45NmuucIo3WBs5y0xchc9vTPACS2OGug1J4gMuw/dPeIn740XrRgoO69jHt/D7Bd7h6SjpOhBFEnexhSP8C2OOsY17QwZsy00ikSc4wPcw9hxv8bj3dB2YJpJY1azGx/DMpWbVtnCnr4BtaSsSeabZNz/D8181K7cx13QduI1I4gFe4YsMSvgsIollTfAJ/oQ5T/BaI9w78xCJjFbC5y2SGLyE9yUSGaSEDyGS6LWEDykSeY73miqXMpxiFw/jwIXoMbpQ/1odSJv9XIGbPZbf2LwVU37TC/EszP1DIS/EeET5G+Ys5oiypgla7KGx6GN88Y1V0a3utJPrypAB2zLtOugXDhV0HfT/Bd1n7Cjwgm5hrkz38GjkLDMxVj/SmoXpR6pIblSR3KgiuVFFcqOK5EYVyY0qkhtVpNIT1xWNxnaPT91sAAAAAElFTkSuQmCC"
@@ -66,6 +68,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
+
+        val sharedPref = this.getSharedPreferences("localprefs", Context.MODE_PRIVATE)
+
 
         binding.fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -101,18 +106,6 @@ class MainActivity : AppCompatActivity() {
        intentHandler(intent)
     }
 
-    public override fun onSaveInstanceState(savedInstanceState: Bundle) {
-        super.onSaveInstanceState(savedInstanceState)
-        savedInstanceState.putFloat("bearing", bearingIn.toFloat())
-        savedInstanceState.putFloat("vector", vectorlengthIn.toFloat())
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        bearingIn = savedInstanceState.getFloat("bearing", 0.0F).toDouble()
-        vectorlengthIn = savedInstanceState.getFloat("vector", 0.0F).toDouble()
-
-    }
 
     override fun onStart() {
         super.onStart()
@@ -181,17 +174,35 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getUserValues(): Boolean {
+        textIn = binding.editTextInfo.text.toString()
         val tmp = binding.editTextBearing.getText().toString().toDouble()
         if (isInRange(0.0,360.0,tmp)) {
             bearingIn = tmp
             Logger.logD("App", "distance:"+vectorlengthIn+" angle:"+ bearingIn)
+            save_settings()
             return true
         }
         else {
             Toast.makeText(this, "Bearing not in range 0..360", Toast.LENGTH_SHORT).show()
             return false
         }
+    }
 
+    fun save_settings() {
+        val sharedPref = this.getPreferences(Context.MODE_PRIVATE) ?:return
+        with (sharedPref.edit()) {
+            putFloat("bearing", bearingIn.toFloat())
+            putFloat("vector", vectorlengthIn.toFloat())
+            putString("info", textIn)
+            apply()
+        }
+    }
+
+    fun restore_settings() {
+        val sharedPref = this.getPreferences(Context.MODE_PRIVATE) ?: return
+        bearingIn = sharedPref.getFloat("bearing", 0.0F).toDouble()
+        vectorlengthIn = sharedPref.getFloat("vector", 0.0F).toDouble()
+        textIn = sharedPref.getString("info", "").toString()
     }
 
     fun intentHandler(intent: Intent?) {
@@ -205,7 +216,7 @@ class MainActivity : AppCompatActivity() {
             // requested from Locus
             val pt = IntentHelper.getPointFromIntent(this, intent)
             if (pt != null) {
-                getUserValues() // again since the activity has restarted
+                restore_settings()
                 currentlocation = pt.location
                 val destination = Bearing.calculate(pt.location.latitude , pt.location.longitude , bearingIn , vectorlengthIn)
                 projected = Location(destination.lat , destination.lon)
@@ -227,7 +238,7 @@ class MainActivity : AppCompatActivity() {
     @Throws(RequiredVersionMissingException::class)
     fun callSendOneTrack(ctx: Context) {
         // prepare data track
-        val track = generateTrack(currentlocation, projected,"test")
+        val track = generateTrack(currentlocation, projected,textIn)
 
         // get file to share
         val file = SendToAppHelper.getCacheFile(ctx)
@@ -235,17 +246,18 @@ class MainActivity : AppCompatActivity() {
         val uri = FileProvider.getUriForFile(ctx, ctx.getString(R.string.file_provider_authority), file)
 
         // send data the app. 'SendMode' define core behavior how Locus app handle received data
-        val sendResult = SendTrack(SendMode.Basic(), track)
+        val sendResult = SendTrack(SendMode.Basic(centerOnData = true), track)
             .sendOverFile(ctx, cacheFile = file, cacheFileUri = uri)
         Logger.logD("App", "callSendOneTrack(), " +
                 "send:" + sendResult)
     }
 
     /**
-     * Generate fictive track from defined start location.
+     * Generate vector track from defined origin and destination.
      *
-     * @param startLat start latitude
-     * @param startLon start longitude
+     * @param origin origin location
+     * @param destination destination location
+     * @param info track name
      * @return generated track
      */
     private fun generateTrack(origin: Location, destination: Location, info : String): Track {
