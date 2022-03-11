@@ -56,6 +56,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
+                <action android:name="locus.api.android.INTENT_ITEM_MAIN_FUNCTION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name="locus.api.android.ACTION_RECEIVE_LOCATION" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

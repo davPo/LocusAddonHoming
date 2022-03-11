@@ -14,6 +14,7 @@ import android.view.MenuItem
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.navigation.ui.AppBarConfiguration
@@ -27,8 +28,10 @@ import kotlinx.coroutines.launch
 import locus.api.android.features.sendToApp.SendMode
 import locus.api.android.features.sendToApp.SendToAppHelper
 import locus.api.android.features.sendToApp.tracks.SendTrack
+import locus.api.android.objects.LocusVersion
 import locus.api.android.utils.IntentHelper
 import locus.api.android.utils.LocusConst
+import locus.api.android.utils.LocusUtils
 import locus.api.android.utils.exceptions.RequiredVersionMissingException
 import locus.api.objects.extra.GeoDataExtra
 import locus.api.objects.extra.Location
@@ -48,7 +51,6 @@ class MainActivity : AppCompatActivity() {
     var textIn : String = ""
     var currentlocation : Location = Location(0.0, 0.0)
     var projected : Location = Location(0.0, 0.0)
-
     val vector_km: DoubleArray = doubleArrayOf(2.0, 10.0, 20.0, 50.0)
     val red_flag_icon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABmJLR0QA/wD/AP+gvaeTAAAA6UlEQVRoge3YsQ3CQAyF4XeIcbIB0JElUmcP2Is0EWGMzGIqS4gK7my/K/z1SO8XSS4KkFL6yTjNMk6zsHd8O7AHhNkHyD5A5IJNzriy96iaf+CEgkcvIS2XUBchFvcANcTyJqaEeDyFQkM8H6MhIRHngGtI5EHmEsI4iU1DmK8SJiE9vAs1hfQQoKpCegqocmQP+PCC4F42LP/8qIeAquGKGdA0XDECTIaryADT4SoiwGW48gxwHa48AkKGK8uA0OHKIoAyXLUEUIermoAVwK08sVqPcZXfRp1kAFsGsGUAWwawZUBKiesN6tVxvhMjpPkAAAAASUVORK5CYII="
     val green_flag_icon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABmJLR0QA/wD/AP+gvaeTAAABGklEQVRoge2WPw4BURCH5+06gnAAvUKrESGcQUHjGkLiGgpOgSzFJvYYzjKqaVT7/sz7kcxXb/F9efveDJFhGK2Yr7Y8X20Z7fFNgRaIxbX9cLgbMRFRd9BrCseHx+b+0NNqj/cJOOIxM1XT8/I1uyxmGlI+BP9CvxISfQfQIckuMSok+SuUO0TtGc0Voj4HtEOyDTKtkOyTOHUIbJVIFQLfhWJD4AFCaMjPBITSQQsITK4pHB+em5vXlgsPCBUXYAGx4kL2gFTiQraA1OKCeoCWuKAWoC0uJA/IJS4kC8gtLkQHoMSF4AC0uOAdwMx1WZb7an2tNYR8aR3Qf4+IiKg6niZqNgH8/TZqAWgsAI0FoLEANBZgGAaWDyburZhYAyl2AAAAAElFTkSuQmCC"
@@ -104,6 +106,9 @@ class MainActivity : AppCompatActivity() {
         // finally check intent that started this sample
         //MainIntentHandler.handleStartIntent(this, intent)
        intentHandler(intent)
+       // ui update
+        vectorlengthIn = vector_km.get(binding.seekBarLen.progress)
+        binding.textViewVector.text = (vectorlengthIn.toString() + " km")
     }
 
 
@@ -218,14 +223,32 @@ class MainActivity : AppCompatActivity() {
             if (pt != null) {
                 restore_settings()
                 currentlocation = pt.location
-                val destination = Bearing.calculate(pt.location.latitude , pt.location.longitude , bearingIn , vectorlengthIn)
-                projected = Location(destination.lat , destination.lon)
                 callSendOneTrack(this)
                 Logger.logD("App", "origin:"+currentlocation+" projete:"+ projected)
               } else {
                 Logger.logW("App", "request PickLocation, canceled")
             }
         }
+        // check intent that started activity
+//        else if (IntentHelper.isIntentMainFunction(intent)) {
+//            // handle received intent
+//            IntentHelper.handleIntentMainFunction(this, intent,
+//                object : IntentHelper.OnIntentReceived {
+//
+//                    override fun onReceived(lv: LocusVersion, locGps: Location?, locMapCenter: Location?) {
+//                        if (locGps != null) {
+//                            currentlocation = locGps
+//                            locationValid = true
+//                        }
+//                        else locationValid = false
+//                        // handle received intent with known LocusVersion and optional users locations
+//                    }
+//
+//                    override fun onFailed() {
+//                        // invalid intent or any other problem
+//                    }
+//                })
+//        }
     }
 
 
@@ -238,8 +261,9 @@ class MainActivity : AppCompatActivity() {
     @Throws(RequiredVersionMissingException::class)
     fun callSendOneTrack(ctx: Context) {
         // prepare data track
+        val destination = Bearing.calculate(currentlocation.latitude , currentlocation.longitude , bearingIn , vectorlengthIn)
+        projected = Location(destination.lat , destination.lon)
         val track = generateTrack(currentlocation, projected,textIn)
-
         // get file to share
         val file = SendToAppHelper.getCacheFile(ctx)
         // prepare file Uri: share via FileProvider. You don't need WRITE_EXTERNAL_STORAGE permission for this!
