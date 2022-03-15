@@ -270,8 +270,8 @@ class MainActivity : AppCompatActivity() {
         val uri = FileProvider.getUriForFile(ctx, ctx.getString(R.string.file_provider_authority), file)
 
         // send data the app. 'SendMode' define core behavior how Locus app handle received data
-        val sendResult = SendTrack(SendMode.Basic(centerOnData = true), track)
-            .sendOverFile(ctx, cacheFile = file, cacheFileUri = uri)
+        val sendResult = SendTrack(SendMode.Import(), track)  // SendMode specifies if Locus will make the track volatile or store in database
+            .sendOverFile(ctx, cacheFile = file, cacheFileUri = uri) //centerOnData = true
         Logger.logD("App", "callSendOneTrack(), " +
                 "send:" + sendResult)
     }
